@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTheme, useBreakpoint, t, ThemeToggle, globalCss } from "./theme";
-
-const API = import.meta.env.VITE_API_URL || "/api";
+import { API } from "./apiConfig";
 
 const IcoCopy   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
 const IcoCheck  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>;
@@ -111,7 +110,13 @@ export default function WalletSetup({ session, onComplete }) {
         }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`Invalid server response (${res.status}): ${text.slice(0, 200)}`);
+      }
       if (!res.ok) throw new Error(data.error || `Server error ${res.status}`);
 
       // Validate address and viewing key prefixes

@@ -677,6 +677,15 @@ app.post("/api/payroll/estimate", requireSession, async (req, res) => {
   }
 });
 
+const FRONTEND_DIST = path.join(process.cwd(), "..", "frontend", "dist");
+if (fs.existsSync(FRONTEND_DIST)) {
+  app.use(express.static(FRONTEND_DIST));
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+  });
+  console.log(`[ZPayroll] Serving frontend from ${FRONTEND_DIST}`);
+}
+
 const server = app.listen(PORT, () => {
   console.log(`\n[ZPayroll] Server running at http://localhost:${PORT}`);
   console.log(`[ZPayroll] Zingo-CLI:    ${ZINGO_BIN}`);

@@ -3,8 +3,7 @@ import LandingPage from "./LandingPage";
 import AuthScreen  from "./AuthScreen";
 import WalletSetup from "./WalletSetup";
 import ZPayroll    from "./ZPayroll";
-
-const API = import.meta.env.VITE_API_URL || "/api";
+import { API } from "./apiConfig";
 
 // ─── Session storage ──────────────────────────────────────────────────────────
 // Persists: publicKey, sessionToken, unifiedAddress, viewingKey, birthdayHeight
