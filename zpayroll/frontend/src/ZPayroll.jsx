@@ -144,9 +144,16 @@ async function apiFetch(path, sessionToken, body = null) {
     ? { method: "GET", headers }
     : { method: "POST", headers, body: JSON.stringify(body ?? {}) };
 
-  const res = await fetch(`${API}${path}`, opts);
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  const url = `${API}${path}`;
+  const res = await fetch(url, opts);
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid server response (${res.status}) from ${url}: ${text.slice(0, 250)}`);
+  }
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status} from ${url}`);
   return data;
 }
 
