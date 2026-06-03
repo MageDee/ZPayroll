@@ -340,7 +340,7 @@ app.get("/api/health", async (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.json({ status: "ok", message: "ZPayroll backend is running.", api: "/api" });
+  res.json({ status: "ok", message: "ZPayroll backend is running.",                                                     api: "/api" });
 });
 
 app.post("/api/wallet/create", async (req, res) => {

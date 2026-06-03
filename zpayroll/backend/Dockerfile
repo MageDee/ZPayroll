@@ -20,6 +20,7 @@ FROM node:20-slim
 
 RUN apt-get update && apt-get install -y \
     libssl3 \
+    libsqlite3-0 \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
