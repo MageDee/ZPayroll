@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTheme, useBreakpoint, t, ThemeToggle, globalCss } from "./theme";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const API = import.meta.env.VITE_API_URL || "/api";
 const EXPLORER_BASE = "https://testnet.cipherscan.app/tx/";
 const FAUCET_URL = "https://testnet.zecfaucet.com";
 const TEAM_STORAGE_PREFIX = "zpayroll_team_";
