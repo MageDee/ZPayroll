@@ -9,8 +9,11 @@
   <body>
     <div id="root"></div>
     <script>
+      const defaultApiHost = window.location.host.includes("vercel.app")
+        ? "https://zpayroll-production.up.railway.app"
+        : window.location.origin;
       window.__ZPAYROLL_CONFIG__ = window.__ZPAYROLL_CONFIG__ || {
-        apiUrl: window.location.origin + "/api",
+        apiUrl: `${defaultApiHost}/api`,
       };
     </script>
     <script type="module" src="/src/main.jsx"></script>
