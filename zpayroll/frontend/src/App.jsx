@@ -4,6 +4,8 @@ import AuthScreen  from "./AuthScreen";
 import WalletSetup from "./WalletSetup";
 import ZPayroll    from "./ZPayroll";
 
+const API = import.meta.env.VITE_API_URL || "/api";
+
 // ─── Session storage ──────────────────────────────────────────────────────────
 // Persists: publicKey, sessionToken, unifiedAddress, viewingKey, birthdayHeight
 // Never persists: privateKey, mnemonic (security-sensitive, memory only)
@@ -129,7 +131,7 @@ export default function App() {
     // Revoke server-side session
     try {
       if (session?.sessionToken) {
-        await fetch("http://localhost:3001/api/session/logout", {
+        await fetch(`${API}/session/logout`, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ sessionToken: session.sessionToken }),
