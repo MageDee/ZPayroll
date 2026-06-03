@@ -1,0 +1,54 @@
+{
+  "1b74b5991f36fd9b3c518ec0ab66bd4711e5094b7d982ecca3cbf049b168c027": [
+    {
+      "runId": "run_1780479998101",
+      "timestamp": "2026-06-03T09:47:31.907Z",
+      "totalEmployees": 2,
+      "totalZEC": 0.04,
+      "successCount": 2,
+      "failureCount": 0,
+      "results": [
+        {
+          "employeeId": "1780478066107",
+          "name": "Mon",
+          "amountZEC": 0.02,
+          "txId": "9a62bca764b31d676de32cc5f47bf5fbff06b110049503ba879a92227d4838ed",
+          "status": "sent"
+        },
+        {
+          "employeeId": "1780478102546",
+          "name": "Sppedfox",
+          "amountZEC": 0.02,
+          "txId": "1edadd2c8dda317eece9fab709cf1beda166c9ae6e6921a1db1ccdb1d4347738",
+          "status": "sent"
+        }
+      ]
+    },
+    {
+      "runId": "run_1780478202433",
+      "timestamp": "2026-06-03T09:17:57.628Z",
+      "totalEmployees": 2,
+      "totalZEC": 0.04,
+      "successCount": 1,
+      "failureCount": 0,
+      "results": [
+        {
+          "employeeId": "1780478066107",
+          "name": "Mon",
+          "amountZEC": 0.02,
+          "txId": "9c00240aaebf31c5f3fb5699ddb5c443cd017616ef5947b81b29e7253b067ab8",
+          "status": "sent"
+        },
+        {
+          "employeeId": "1780478102546",
+          "name": "Sppedfox",
+          "amountZEC": 0.02,
+          "txId": null,
+          "status": "pending",
+          "rawOutput": "Launching sync task...\nLaunching save task...\n{\n  \"error\": \"Send error. Transmission error. Transmission failed. SendRejected(\\\"SendResponse { error_code: -1, error_message: \\\\\\\"transaction already exists in mempool\\\\\\\" }\\\")\"\n}\nSave task shutdown successfully.\nZingo CLI quit successfully.",
+          "fee": null
+        }
+      ]
+    }
+  ]
+}
