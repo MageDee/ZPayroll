@@ -19,11 +19,19 @@ function normalizeUrl(value) {
   return trimmed;
 }
 
-export const API = (() => {
+const resolvedApi = (() => {
   const runtimeUrl = typeof window !== "undefined" ? window.__ZPAYROLL_CONFIG__?.apiUrl : null;
   const envUrl = import.meta.env.VITE_API_URL;
   const raw = runtimeUrl ?? envUrl;
   const normalized = normalizeUrl(raw);
-  if (normalized) return normalized;
-  return "/api";
+  return normalized || "/api";
 })();
+
+if (typeof window !== "undefined") {
+  console.info("[ZPayroll] Resolved API base:", resolvedApi);
+  if (resolvedApi === "/api") {
+    console.warn("[ZPayroll] VITE_API_URL is not set or invalid. Falling back to /api.");
+  }
+}
+
+export const API = resolvedApi;
