@@ -228,11 +228,9 @@ docker run -p 3001:3001 -e PORT=3001 zpayroll-backend
 
 ## 🗺️ Roadmap
 
-- **FROST Threshold Signatures** — replace Ed25519 M-of-N approval workflows with `frost-rerandomized`, the Zcash Foundation's audited threshold signing library. Currently blocked on the absence of a WASM/JavaScript build; the community is actively discussing this (as of April 2026).
+- **FROST Threshold Signatures** — replace Ed25519 M-of-N approval workflows with `frost-rerandomized`, the Zcash Foundation's audited threshold signing library.
 - **Mainnet Deployment** — production-ready after completion of an independent security audit code review.
-- **Employee Portal Integration** — workers gain view tracking access to query their personal payment logs using their destination addresses.
 - **Automated Recurring Payroll Cycles** — scheduled worker routines triggering cron execution parameters with a configurable cadence.
-- **Hardware Security Module (HSM) Integration** — hardware keys handling secure spending path parameters for enterprise storage requirements.
 
 ---
 
