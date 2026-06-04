@@ -37,139 +37,209 @@ ZPayroll uses Zcash's **shielded transactions** to make payroll completely priva
 
 ---
 
-## How It Works
+## 🛠️ How It Uses the Zcash Network
+
+### Orchard Shielded Pool (NU5+)
+ZPayroll targets the **Orchard protocol**, Zcash's current and most advanced shielded pool, introduced in the NU5 network upgrade. Orchard uses **Halo2 zero-knowledge proofs** — a recursive proof system that requires no trusted setup, making it cryptographically superior to the earlier Sapling protocol.
+
+Every payroll transaction goes through the Orchard pool:
 
 ```
-Employer deposits ZEC into platform wallet
-              ↓
-        ZPayroll dashboard
-              ↓
-  Shielded transactions dispatched
-  (zk-SNARK proofs generated live via zingo-cli)
-              ↓
-Each employee receives ZEC privately
-    to their own Zcash address
+Employer Wallet (Orchard)
+        ↓
+  zk-SNARK proof generated
+  (proves validity without revealing amount, sender, or recipient)
+        ↓
+Shielded transaction broadcast to Zcash testnet via zingo-cli
+        ↓
+Employee receives ZEC at their unified address (utest1...)
+— amount and sender hidden on-chain
 ```
 
-Zcash's zk-SNARK cryptography proves each transaction is valid without revealing the sender, recipient, or amount on-chain.
+### Unified Addresses
+ZPayroll uses **Unified Addresses** (ZIP-316), the current Zcash address standard. These bundle multiple receiver types into one address string, prefixed `utest1` on testnet. When an employer sends payroll, the protocol automatically routes funds through the Orchard receiver for maximum privacy.
+
+### Unified Full Viewing Keys
+Employers receive a **Unified Full Viewing Key** (`uviewtest1...`) at wallet setup. This key grants read-only access to all incoming and outgoing transactions — enough for an accountant to verify payroll records — without any ability to move funds. This is a native Zcash privacy primitive, not an application-layer workaround.
+
+### Wallet Derivation (ZIP-32)
+Each employer's Zcash wallet is derived deterministically from their Ed25519 identity keypair using **SHA-256 → ZIP-32 key derivation**. The same keypair always produces the same Zcash wallet — there is no separate seed phrase to manage. The frontend triggers wallet setup via an onboarding check (`/api/wallet/create` or `/api/wallet/restore`), passing the credentials once to generate the persistent session.
+
+### Light Client Protocol
+ZPayroll connects to the Zcash testnet via **lightwalletd** — a gRPC-based light client protocol that allows wallet operations without running a full Zcash node. The application uses an environment-configured testnet lightwalletd endpoint (defaulting to `https://testnet.zec.rocks:443`), making the backend infrastructure-free for development.
 
 ---
 
-## Features
+## 🏗️ Architecture
 
-- **Employer Dashboard** — Fund wallet, manage team, and run payroll in one click with real-time balance metrics.
-- **Deterministic Wallet Management** — Automatically derive or restore your ZIP-32 Orchard testnet wallet using browser-generated Ed25519 identities.
-- **Multisig Workflow Protected** — Configure an $M$-of-$N$ threshold setup to ensure programmatic corporate expenses require distributed signer confirmations.
-- **Batch Payroll & Queueing** — Dispatch shielded `quicksend` arrays across the entire active roster or route them to approval buffers.
-- **Audit Portability** — Review local encrypted payroll history entries or export analytical records directly as structured CSV or JSON files.
+```
+Browser (React + Vite)
+    │
+    │  Ed25519 keypair generated in browser (Web Crypto API)
+    │  Private key sent ONCE to backend → session token returned
+    │  All subsequent calls use session token only
+    │  Roster & local view history stored inside localStorage
+    │
+    ▼
+Node.js Express Backend
+    │
+    │  Derives Orchard wallet via zingo-cli binary subprocess loops
+    │  Computes sha-256(privkey) to feed bip39 mnemonic generation
+    │  Issues session token — private key discarded after derivation
+    │  Verifies Ed25519 signatures for multi-signature approvals
+    │
+    ▼
+ZingoLib (zingo-cli native release binary target)
+    │
+    │  ZIP-32 Orchard key derivation via local wallet files
+    │  Halo2 zk-SNARK proof generation & cache tracking
+    │  Transaction construction, logging, and quicksend dispatch
+    │
+    ▼
+Remote Lightwalletd Endpoint (gRPC server configuration)
+    │
+    ▼
+Zcash Testnet (Orchard shielded pool execution matrix)
+```
 
 ---
 
-## 🛠️ Built With
+## 🌟 Key Features
 
-- **[Zcash Ecosystem](https://z.cash/)** — Privacy-preserving blockchain architecture providing destination, amount, and memo protection.
-- **[Zingo-CLI](https://github.com/zingolabs/zingolib)** — Asynchronous lightwalletd binary client orchestration layer executing high-performance node synchronizations and transactional proof configurations.
-- **[Node.js Engine](https://nodejs.org/) & [Express](https://expressjs.com/)** — Lightweight backend API runtime orchestrating runtime subprocess pipes, cryptographic seed generation (`bip39`), and disk data persistence.
-- **[React 18](https://react.dev/) & [Vite Tooling Stack](https://vitejs.dev/)** — Scalable modern interface bundle engine delivering client-side signature validations and dynamic interactive dashboard states.
+### 🔐 Cryptographic Identity
+No email. No password. Identity on ZPayroll is an **Ed25519 keypair** generated in the user's browser using the Web Crypto API. The public key is the employer's identity. The private key never leaves the browser permanently — it is used once to derive the Zcash wallet and then discarded server-side, with an isolated session token issued for all subsequent requests.
+
+### 💸 Shielded Payroll
+Salary payments are Zcash **Orchard shielded transactions**. The zk-SNARK proof is generated via the `zingo-cli` runtime worker on the backend and broadcast to the testnet. Transaction amounts, sender addresses, and recipient addresses are all hidden on-chain.
+
+### 🔑 Wallet Ownership
+Each employer's workspace has its own **unique Orchard wallet** isolated within `/data` by public key prefix parameters. There is no shared platform wallet. The employer's funds are in their wallet — ZPayroll never holds or controls them long-term.
+
+### ✍️ M-of-N Multisig Approval
+Workspaces can be configured with an **M-of-N approval policy**. Before payroll executes, M co-signers must independently sign the payroll payload hash with their own Ed25519 keypairs. Signing happens locally in each co-signer's browser — no private key is ever shared or transmitted. The backend verifies each signature against the registered public keys before executing via `zingo-cli`. 
+
+> **Governance Roadmap:** The upgrade path will introduce **FROST threshold signatures** (`frost-rerandomized`), the Zcash Foundation's audited threshold signing library. This replaces the approval layer with true threshold cryptography where the spending key is never assembled by any single party.
+
+### 👁️ Accountant Access via Viewing Keys
+Employers can share their **Unified Full Viewing Key** (`uviewtest1...`) with accountants. This key provides complete read-only visibility into all wallet transactions — sufficient for payroll auditing and tax compliance — without any ability to move funds.
+
+### 📋 Full Wallet Transparency (to owner)
+Employers see their complete wallet details at setup:
+- **Unified Address** (`utest1...`) — for receiving deposits
+- **Unified Full Viewing Key** (`uviewtest1...`) — for accountant access
+- **24-word BIP-39 seed phrase** — for wallet recovery in any compatible Zcash wallet
+- **Birthday height** — testnet block height at wallet creation, for efficient scanning
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | React 18 + Vite + DM Mono / Bebas Neue |
+| **Styling** | Custom responsive theme configuration design system |
+| **Auth & Signing** | Ed25519 via Web Crypto API (browser-native) |
+| **Backend Engine** | Node.js + Express |
+| **Crypto Dependencies** | `bip39` (mnemonic generation) + `crypto` |
+| **Zcash Engine** | Native `zingo-cli` executable integration via `execFile` subprocesses |
+| **Protocol Layer** | Orchard (NU5+), ZIP-32, ZIP-316, Halo2 |
+| **Network Node** | Zcash Testnet via `lightwalletd` gRPC nodes |
+| **Roster Storage** | Local workspace cache configuration (`localStorage`) |
+| **Multisig Approval** | Ed25519 M-of-N payload signature hooks |
+| **Explorer** | [testnet.cipherscan.app](https://testnet.cipherscan.app) |
+| **Faucet** | [testnet.zecfaucet.com](https://testnet.zecfaucet.com) |
 
 ---
 
 ## 📂 Repo Layout
 
-- `backend/` — Express API server (`server.js`), `Dockerfile`, runtime helper configurations, and local JSON persistence directory (`data/`).
-- `frontend/` — React + Vite single-page application dashboard engine and theme contexts.
+- `backend/` — Express API server (`server.js`), `Dockerfile`, configurations, and a local `/data` directory handling database persistence files (`payroll-history.json`, `workspace-multisig.json`, `pending-multisig-runs.json`).
+- `frontend/` — React + Vite single-page application dashboard workspace environment.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Running Locally
 
 ### Prerequisites
-- Node.js (Node 20 recommended, minimum 16+)
-- npm or pnpm
-- A compiled copy of `zingo-cli` accessible on the host machine
-- Docker (Optional, for containerized backend deployment)
+- Node.js 20+
+- A compiled copy of `zingo-cli` saved onto your host system
 
-### 📦 Backend Setup (Local)
-
-1. Navigate to the backend directory, install packages, and initialize your workspace:
+### Backend Setup
+1. Navigate to the api directory and fetch runtime packages:
    ```bash
    cd backend
    npm install
    ```
-
-2. Configure your environment metrics. Create a `.env` file or provide system-level environmental markers:
+2. Set up your environment indicators inside a `.env` file:
    ```env
    PORT=3001
-   ZINGO_BIN="C:\Users\USER\zingolib\target\release\zingo-cli.exe"  # Absolute path to your compiled binary
-   LIGHTWALLETD="https://testnet.zec.rocks:443"                            # Defaults to testnet.zec.rocks:443
+   ZINGO_BIN="C:\Users\USER\zingolib\target\release\zingo-cli.exe"  # Target path to your executable binary
+   LIGHTWALLETD="https://testnet.zec.rocks:443"
    ```
-
 3. Initialize the Express API service:
    ```bash
    node server.js
    ```
 
-#### 🐳 Docker Containerized Execution
-To insulate the environment along with necessary shared target binary systems, build and boot locally using Docker:
+#### 🐳 Docker Execution Alternate
 ```bash
 cd backend
 docker build -t zpayroll-backend .
 docker run -p 3001:3001 -e PORT=3001 zpayroll-backend
 ```
 
-### 🖥️ Frontend Setup (Local)
-
-1. Navigate to the frontend workspace context and mount runtime package files:
+### Frontend Setup
+1. Open a new terminal pane, move to the frontend folder, and install packages:
    ```bash
    cd frontend
    npm install
    ```
-
-2. Assign build targets to direct compilation traffic mapping schemas. Create a local environment layer:
+2. Configure your local configuration layer pointing to the active backend api port:
    ```bash
    echo "VITE_API_URL=http://localhost:3001" > .env.local
    ```
-
-3. Spin up the hot-reloading development client service pipeline:
+3. Boot the Vite development environment server:
    ```bash
    npm run dev
-   ```
-
-4. Assemble high-performance asset minifications optimized for production hosting sites (e.g., Vercel, Netlify):
-   ```bash
-   npm run build
+   # → http://localhost:5173
    ```
 
 ---
 
-## 💡 Environment Configuration References
+## 🔄 User Flow
 
-| Parameter | Application Layer | Context Description |
-| :--- | :--- | :--- |
-| `PORT` | Backend Runtime | Evaluates what interface port bounds to deploy on. Defaults to `3001`. |
-| `ZINGO_BIN` | Backend System | Explicit system location targets indicating where the compiled `zingo-cli` host utility lives. |
-| `LIGHTWALLETD` | Backend Crypto | Targeted address maps identifying remote endpoint indices for Zcash state updates. |
-| `VITE_API_URL` | Frontend Compile | Build-time URL base (e.g., `https://zpayroll-api.railway.app`). Directs client fetching routines. |
-| `FRONTEND_URL` | Backend Security | Evaluates incoming origin paths to process strict security authorization checks (CORS targets). |
+```
+1. Visit ZPayroll dashboard
+2. Generate Ed25519 keypair in browser
+   → Public key = your identity parameters
+   → Private key = transmitted once to compute seed matrix, then immediately discarded
+3. Backend spins up zingo-cli to derive your Orchard wallet (utest1 address + uviewtest1 viewing key)
+   → You receive your 24-word seed phrase layout and birthday block height
+   → Session token issued for all future secure API network transactions
+4. Fund your deposit address string using testnet faucet parameters (testnet.zecfaucet.com)
+5. Add employees with their utest1 target address indicators
+6. Dispatch payroll → shielded Orchard transactions sent via active background workers
+   → zk-SNARK proofs are generated, hiding metadata metrics completely on-chain
+   → TX ID hashes are securely tracked and viewable on Cipherscan explorer
+7. Share viewing key parameters with an accountant for audit tracking access
+```
 
 ---
 
-## 💡 Usage Notes
+## 🗺️ Roadmap
 
-### 🔐 Cryptographic Session & Wallet Derivation Model
-- **Zero-Persistence Keys:** The backend engine operates using transient validation constructs. It does **not** write or persist your Ed25519 private keys or underlying seed parameters to disk.
-- **Derivation Routing:** During dashboard onboarding (`/api/wallet/create` or `/api/wallet/restore`), an explicit instance of your private key is passed to derive the matching 24-word ZIP-32 Orchard key layout structure. The server then drops the key information and replaces the access state with an active token tracker (`x-session-token`) valid for **8 hours**.
-
-### 🤝 Multi-Signature Workspace Approvals
-- Protect organizational treasuries by implementing an active split approval scheme under the **Settings** layout layer.
-- Submitting a payroll payload inside a multisig-protected layout queues distributions safely within `pending-multisig-runs.json`. Co-signers verify balances and supply authentication stamps locally using browser-validated Ed25519 configurations before `zingo-cli` registers updates or dispatches on-chain transfers.
+- **FROST Threshold Signatures** — replace Ed25519 M-of-N approval workflows with `frost-rerandomized`, the Zcash Foundation's audited threshold signing library. Currently blocked on the absence of a WASM/JavaScript build; the community is actively discussing this (as of April 2026).
+- **Mainnet Deployment** — production-ready after completion of an independent security audit code review.
+- **Employee Portal Integration** — workers gain view tracking access to query their personal payment logs using their destination addresses.
+- **Automated Recurring Payroll Cycles** — scheduled worker routines triggering cron execution parameters with a configurable cadence.
+- **Hardware Security Module (HSM) Integration** — hardware keys handling secure spending path parameters for enterprise storage requirements.
 
 ---
 
 ## 🔧 Troubleshooting
 
-- **404 Exception Logs (`Invalid server response`):** Double-check compiler setup indicators. If your front-end layer relies on structural static systems like Vercel while your application programming pipelines map back to separate host backends, confirm that your build metrics contain the accurate `VITE_API_URL` address string.
-- **Subprocess Failures / Shared Object Linkages:** If your local machine triggers terminal runtime crashes mapping back to missing `libsqlite3.so.0` artifacts while calling automated steps, verify that your active workspace context supplies standard SQL tools:
+- **404 Server Errors (`Invalid server response`):** Double-check compiler routing metrics. If hosting cross-domain layouts (e.g., frontend on Vercel and api worker on Railway), confirm your build environment matches your target live domain (`VITE_API_URL`).
+- **Zingo Subprocess Linkage Failures (`libsqlite3` exceptions):** If execution calls crash on your local Linux host due to missing shared database engine libraries, install the necessary native components manually:
   ```bash
   sudo apt-get update && sudo apt-get install -y libsqlite3-0
   ```
