@@ -3,25 +3,25 @@
 ## 📌 Submission Overview
 
 * **Project Name:** ZPayroll
-* **Bounty / Track:** Core Privacy / Applications Track
+* **Track:** Accounting Track
 * **Tagline:** Fully private, borderless corporate compensation powered by Zcash Orchard shielded transfers.
 * **Live Deployment Platform:** [zpayroll.vercel.app](https://zpayroll.vercel.app)
 * **Video Walkthrough / Demo:** [youtu.be/ss6DDuaUMkg](https://youtu.be/ss6DDuaUMkg?si=IXxiOKmuyLKIi4qN)
 * **Backend API Base Engine:** [zpayroll-production.up.railway.app](https://zpayroll-production.up.railway.app)
-* **Code Repository Context:** [https://github.com/MageDee/ZPayroll](https://github.com/MageDee/ZPayroll)
+* **Code Repository:** [https://github.com/MageDee/ZPayroll](https://github.com/MageDee/ZPayroll)
 
 ---
 
 ## 💡 Problem Space & Strategic Vision
 
-Traditional cryptocurrency payment architectures operate on fully transparent, public ledgers. When organizations implement mainstream Web3 rails for corporate payroll, sensitive transaction data is exposed on block explorers. This structural transparency causes critical operational vulnerabilities:
+Traditional cryptocurrency payment architectures operate on fully transparent, public ledgers. When organizations implement mainstream Web3 rails for their payroll, sensitive transaction data is exposed on block explorers. This structural transparency causes critical operational vulnerabilities:
 
-* **Internal Compensation Leakage:** Employees can easily audit the wallet chains of peers, exposing organizational salary hierarchies and straining internal operational dynamics.
+* **Internal Compensation Leakage:** Employees can easily audit the wallet chains of peers, exposing salary hierarchies and straining internal operational dynamics.
 * **Treasury Visibility:** Public adversaries can track corporate funding addresses, protocol inflows, and overall capital reserves, exposing corporate financial positioning.
 * **Surveillance Risks for Global Workers:** Cross-border remote contract workers are subjected to localized on-chain transaction monitoring and potential financial data exploitation.
 
 ### The ZPayroll Intervention
-ZPayroll abstracts transaction infrastructure away from public tracking spaces. By utilizing advanced zero-knowledge proof cryptography natively supported on the Zcash network, corporate entities can coordinate bulk, multi-destination payroll dispatches without broadcasting identifying sender meta-data, target address locations, or transactional payment thresholds on-chain.
+ZPayroll abstracts transaction infrastructure away from public tracking spaces. By utilizing advanced zero-knowledge proof cryptography natively supported on the Zcash network, entities can coordinate bulk, multi-destination payroll dispatches without broadcasting identifying sender meta-data, target address locations, or transactional payment thresholds on-chain.
 
 ---
 
@@ -100,8 +100,6 @@ Zcash Testnet Protocol Layer
 
 * **FROST Threshold Cryptography:** Transition the current Ed25519 multi-signature validation structure into an implementation leveraging `frost-rerandomized` (the Zcash Foundation's audited threshold signing library). This eliminates single-point-of-failure key reconstruction by generating mathematical partial signatures across distributed contexts.
 * **Automated Recurring Run Cadence:** Integrate crontab orchestration hooks onto the Express daemon framework to allow scheduled payroll dispatches across custom interval bounds.
-* **Hardware Security Integration:** Interface client credential inputs with Hardware Security Module (HSM) boundaries to safely manage enterprise spending targets.
-* **Employee Compliance Portal:** Launch segmented destination-only tracking frameworks where employees inspect individual payment states by supplying corresponding cryptographic proofs.
 
 ---
 
@@ -110,4 +108,4 @@ Zcash Testnet Protocol Layer
 ZPayroll is a hackathon prototype currently configured for the **Zcash testnet** utilizing testnet ZEC assets with zero real-world value. It has not been subjected to a complete independent third-party code review or cryptographic security audit and is not ready for production mainnet orchestration.
 
 ---
-*Built for the Zcash Hackathon · Powered by Zcash Orchard + ZingoLib*
+*Built for the Zechub Hackathon 2026 · Powered by Zcash Orchard + ZingoLib*
