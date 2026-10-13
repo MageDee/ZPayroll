@@ -247,6 +247,3 @@ docker run -p 3001:3001 -e PORT=3001 zpayroll-backend
 ## 📄 License
 
 This project is licensed under the MIT License — see the `LICENSE` file for details.
-
----
-*Built for the Zechub Hackathon 2026*
