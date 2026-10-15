@@ -11,7 +11,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-RUN git clone https://github.com/zingolabs/zingolib.git
+RUN git clone https://github.com/zingolabs/zingolib.git && \
+    cd zingolib && \
+    git checkout PASTE_YOUR_HASH_HERE
 RUN cd zingolib && \
     LIBSQLITE3_SYS_BUNDLED=1 \
     cargo build --release --package zingo-cli
