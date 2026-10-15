@@ -1,4 +1,4 @@
-FROM rust:1.78-slim AS builder
+FROM rust:1.90-slim AS builder
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
     clang \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
