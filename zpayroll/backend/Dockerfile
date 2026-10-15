@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /build
 RUN git clone https://github.com/zingolabs/zingolib.git && \
     cd zingolib && \
-    git checkout PASTE_YOUR_HASH_HERE
+    git checkout $(git rev-list -n 1 --before="2026-09-15" origin/dev)
 RUN cd zingolib && \
     LIBSQLITE3_SYS_BUNDLED=1 \
     cargo build --release --package zingo-cli
